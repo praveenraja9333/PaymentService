@@ -1,11 +1,14 @@
 package com.vrp.system.paymentsystem.paymentservice.pools;
 
 import com.vrp.system.paymentsystem.paymentservice.models.PaymentError;
+import org.springframework.stereotype.Component;
 
 import java.util.TimerTask;
 import java.util.concurrent.*;
 import java.util.stream.IntStream;
 
+
+@Component
 public final class PaymentErrorPool extends AbstractErrorHelperPool<PaymentError> {
     private TimerTask task;
     private ScheduledExecutorService executor= Executors.newScheduledThreadPool(1);

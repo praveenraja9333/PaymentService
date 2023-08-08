@@ -1,21 +1,39 @@
 package com.vrp.system.paymentsystem.paymentservice.models;
 
 
+import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
 import jakarta.transaction.Transactional;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotEmpty;
+import jakarta.validation.constraints.NotNull;
+import org.springframework.lang.NonNull;
 
 import java.util.List;
 import java.util.UUID;
 
-//@Transactional
-//@Entity
-//@Table(name="Orders")
+@Transactional
+@Entity
+@Table(name="Orders")
 public class Order {
     @Id
+    @NotNull(message = "checkoutid should not be null")
+    @NotEmpty(message = "checkoutid should not be empty")
+    @NotBlank(message = "checkoutid should not be blank")
     private  UUID checkoutid;
+
+    @Column
+    @NotNull(message = "buyerinfo should not be null")
+    @NotEmpty(message = "buyerinfo should not be empty")
+    @NotBlank(message = "buyerinfo should not be blank")
     private String buyerinfo;
+
+    @Column
+    @NotNull(message = "currencycode should not be null")
+    @NotEmpty(message = "currencycode should not be empty")
+    @NotBlank(message = "currencycode should not be blank")
     private String currencycode;
     private boolean status;
     List<PaymentOrder> paymentOrderList;

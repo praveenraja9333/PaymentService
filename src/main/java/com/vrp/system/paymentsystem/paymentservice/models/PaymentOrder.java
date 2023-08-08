@@ -1,17 +1,32 @@
 package com.vrp.system.paymentsystem.paymentservice.models;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.Table;
+import jakarta.persistence.*;
 import jakarta.transaction.Transactional;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotEmpty;
+import jakarta.validation.constraints.NotNull;
 
 import java.util.UUID;
 
-//@Entity
-//@Transactional
-//@Table(name="Payment_Orders")
+@Entity
+@Transactional
+@Table(name="Payment_Orders")
 public class PaymentOrder {
+    @Id
+    @GeneratedValue
+    private String id;
+    @Column
+    @NotNull(message = "sellername should not be null")
+    @NotEmpty(message = "sellername should not be empty")
+    @NotBlank(message = "sellername should not be blank")
     private String sellername;
+
     private String buyername;
+
+    @Column
+    @NotNull(message = "sellername should not be null")
+    @NotEmpty(message = "sellername should not be empty")
+    @NotBlank(message = "sellername should not be blank")
     private String amount;
     private String currencycode;
     private boolean ledgerUpdated;

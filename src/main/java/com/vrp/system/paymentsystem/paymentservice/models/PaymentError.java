@@ -5,6 +5,8 @@ import org.springframework.web.bind.annotation.ControllerAdvice;
 public class PaymentError {
 
     private String timestamp;
+
+    private String status;
     private String reason;
 
     public String getTimestamp() {
@@ -21,5 +23,13 @@ public class PaymentError {
 
     public void setReason(String reason) {
         this.reason = reason;
+    }
+
+    public String getStatus() {
+        return status;
+    }
+
+    public void setStatus(String status) {
+        this.status = status;
     }
 }

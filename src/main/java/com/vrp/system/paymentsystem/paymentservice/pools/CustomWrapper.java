@@ -19,7 +19,7 @@ public class CustomWrapper<T> {
         this.milliseconds = milliseconds;
     }
 
-    protected T getData() {
+    public T getData() {
         return data;
     }
 }
