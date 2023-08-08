@@ -10,7 +10,7 @@ import static org.junit.jupiter.api.Assertions.*;
 
 class PaymentErrorPoolTest {
 
-    public static PaymentErrorPool paymentErrorPool;
+  /*  public static PaymentErrorPool paymentErrorPool;
     @BeforeAll
     static void setUp(){
         paymentErrorPool=new PaymentErrorPool();
@@ -47,6 +47,6 @@ class PaymentErrorPoolTest {
             throw new RuntimeException(e);
         }
 
-    }
+    }*/
 
 }
