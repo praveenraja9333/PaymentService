@@ -4,6 +4,8 @@ import com.vrp.system.paymentsystem.paymentservice.models.PaymentError;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
+import java.time.ZonedDateTime;
+
 import static org.junit.jupiter.api.Assertions.*;
 
 class PaymentErrorPoolTest {

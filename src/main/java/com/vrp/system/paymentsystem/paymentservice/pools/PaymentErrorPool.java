@@ -25,9 +25,10 @@ public class PaymentErrorPool {
     private ReentrantLock lock=new ReentrantLock();
 
     private TimerTask task=new TimerTask() {
+
         @Override
-        public void run() {
-            LinkedList<PaymentErrorWrapper> tobeadded;
+       public void run() {
+            List<PaymentErrorWrapper> tobeadded;
                 if (queuecount % 2 == 0) {
                     receiver = tobeadded2;
                     tobeadded = tobeadded1;
@@ -35,13 +36,15 @@ public class PaymentErrorPool {
                     receiver = tobeadded1;
                     tobeadded = tobeadded2;
                 }
+            System.out.println("Thread Name " + Thread.currentThread().getName() + " added " + queuecount + " size " + tobeadded.size());
                 Iterator<PaymentErrorWrapper> it=tobeadded.iterator();
                 while(it.hasNext()){
                     PaymentErrorWrapper pw=it.next();
-                    if ((System.currentTimeMillis() - pw.milliseconds) > 60) {
+                    if ((System.currentTimeMillis() - pw.milliseconds)>60000L) {
+                        System.out.println(System.currentTimeMillis());
+                        System.out.println("amInside "+(System.currentTimeMillis() - pw.getMilliseconds()));
                         available.add(pw);
                         it.remove();
-                        //tobedeleted.add(pw);
                     }
                 }
 
@@ -59,10 +62,9 @@ public class PaymentErrorPool {
     LinkedList<PaymentErrorWrapper> total=new LinkedList<>();
     LinkedList<PaymentErrorWrapper> available=new LinkedList<>();
 
-    volatile LinkedList<PaymentErrorWrapper> tobeadded1=new LinkedList<>();
-    volatile LinkedList<PaymentErrorWrapper> tobeadded2=new LinkedList<>();
-    LinkedList<PaymentErrorWrapper> tobedeleted=new LinkedList<>();
-    private volatile LinkedList<PaymentErrorWrapper> receiver=tobeadded1;
+    private volatile List<PaymentErrorWrapper> tobeadded1=Collections.synchronizedList(new LinkedList<>());
+    private volatile List<PaymentErrorWrapper> tobeadded2=Collections.synchronizedList(new LinkedList<>());
+    private volatile List<PaymentErrorWrapper> receiver=tobeadded1;
 
     public PaymentErrorPool(){
         IntStream.rangeClosed(1,min_count).forEach(i->this.total.add(new PaymentErrorWrapper(new PaymentError())));
@@ -86,7 +88,7 @@ public class PaymentErrorPool {
     }
 
     public void addPaymentError(PaymentErrorWrapper paymentError){
-        paymentError.setMilliseconds(ZonedDateTime.now().toEpochSecond());
+        paymentError.setMilliseconds(System.currentTimeMillis());
         receiver.add(paymentError);
     }
 
@@ -102,18 +104,18 @@ public class PaymentErrorPool {
 
 
     static class PaymentErrorWrapper{
-        private Long milliseconds;
+        private long milliseconds=0L;
         private PaymentError paymentError;
 
         public PaymentErrorWrapper(PaymentError paymentError){
             this.paymentError=paymentError;
         }
 
-        public Long getMilliseconds() {
+        public long getMilliseconds() {
             return milliseconds;
         }
 
-        public void setMilliseconds(Long milliseconds) {
+        public void setMilliseconds(long milliseconds) {
             this.milliseconds = milliseconds;
         }
 
