@@ -112,4 +112,25 @@ public class RegistrationEvent {
        }
    }
 
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        RegistrationEvent that = (RegistrationEvent) o;
+
+        if (!checkoutid.equals(that.checkoutid)) return false;
+        if (!currencycode.equals(that.currencycode)) return false;
+        if (!datetime.equals(that.datetime)) return false;
+        return amount.equals(that.amount);
+    }
+
+    @Override
+    public int hashCode() {
+        int result = checkoutid.hashCode();
+        result = 31 * result + currencycode.hashCode();
+        result = 31 * result + datetime.hashCode();
+        result = 31 * result + amount.hashCode();
+        return result;
+    }
 }
