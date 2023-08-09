@@ -11,8 +11,6 @@ import java.util.SimpleTimeZone;
 import java.util.UUID;
 
 public class RegistrationEvent {
-    private static DateTimeFormatter dateTimeFormatter=DateTimeFormatter.ofPattern("dd-MM-yyyy hh:mm:ssZ");
-    private static SimpleDateFormat format=new SimpleDateFormat("dd-MM-yyyy hh:mm:ssZ");
     private UUID checkoutid;
     private String currencycode;
     private String datetime;
@@ -23,7 +21,7 @@ public class RegistrationEvent {
         return checkoutid;
     }
 
-    public void setCheckoutid(UUID checkoutid) {
+    private void setCheckoutid(UUID checkoutid) {
         if(this.checkoutid==null)
         this.checkoutid = checkoutid;
     }
@@ -32,7 +30,7 @@ public class RegistrationEvent {
         return currencycode;
     }
 
-    public void setCurrencycode(String currencycode) {
+    private void setCurrencycode(String currencycode) {
         if(this.currencycode==null)
         this.currencycode = currencycode;
     }
@@ -41,22 +39,16 @@ public class RegistrationEvent {
         return datetime;
     }
 
-    public void setDatetime(String datatime) {
+    private void setDatetime(String datatime) {
         if(this.datetime==null)
             this.datetime = datatime;
-    }
-    public void setDatetime(Date date){
-        setDatetime(format.format(date));
-    }
-    public void setDatetime(ZonedDateTime zonedDateTime){
-        setDatetime(zonedDateTime.format(dateTimeFormatter));
     }
 
     public String getAmount() {
         return amount;
     }
 
-    public void setAmount(String amount) {
+    private void setAmount(String amount) {
         this.amount = amount;
     }
 
@@ -67,4 +59,57 @@ public class RegistrationEvent {
     public void setStatus(Status status) {
         this.status = status;
     }
+
+   static class RegistrationEventBuilder extends Builder<RegistrationEvent>{
+       private static DateTimeFormatter dateTimeFormatter=DateTimeFormatter.ofPattern("dd-MM-yyyy hh:mm:ssZ");
+       private static SimpleDateFormat format=new SimpleDateFormat("dd-MM-yyyy hh:mm:ssZ");
+       private UUID checkoutid;
+       private String currencycode;
+       private String datetime;
+       private String amount;
+       private Status status;
+
+       public RegistrationEventBuilder setCheckoutid(UUID checkoutid) {
+           this.checkoutid = checkoutid;
+           return self();
+       }
+       public RegistrationEventBuilder setCurrencycode(String currencycode){
+           this.currencycode=currencycode;
+           return self();
+       }
+       public RegistrationEventBuilder  setAmount(String amount){
+             this.amount=amount;
+             return self();
+       }
+       private RegistrationEventBuilder setDatetime(String datatime) {
+           if(this.datetime==null)
+               this.datetime = datatime;
+           return self();
+       }
+       public RegistrationEventBuilder setDatetime(Date date){
+           return setDatetime(format.format(date));
+       }
+       public RegistrationEventBuilder setDatetime(ZonedDateTime zonedDateTime){
+            return setDatetime(zonedDateTime.format(dateTimeFormatter));
+       }
+       public RegistrationEventBuilder setStatus(Status status) {
+           this.status = status;
+           return self();
+       }
+       public RegistrationEventBuilder self(){
+           return this;
+       }
+
+       @Override
+       public RegistrationEvent build() {
+           RegistrationEvent re=new RegistrationEvent();
+           re.setCheckoutid(this.checkoutid);
+           re.setCurrencycode(this.currencycode);
+           re.setDatetime(this.datetime);
+           re.setAmount(this.amount);
+           re.setStatus(this.status);
+           return re;
+       }
+   }
+
 }
