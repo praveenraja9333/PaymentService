@@ -1,10 +1,7 @@
 package com.vrp.system.paymentsystem.paymentservice.models;
 
 
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.Id;
-import jakarta.persistence.Table;
+import jakarta.persistence.*;
 import jakarta.transaction.Transactional;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotEmpty;
@@ -16,12 +13,10 @@ import java.util.UUID;
 
 @Transactional
 @Entity
-@Table(name="Orders")
+@Table(name="c_Orders")
 public class Order {
     @Id
     @NotNull(message = "checkoutid should not be null")
-    @NotEmpty(message = "checkoutid should not be empty")
-    @NotBlank(message = "checkoutid should not be blank")
     private  UUID checkoutid;
 
     @Column
@@ -35,7 +30,10 @@ public class Order {
     @NotEmpty(message = "currencycode should not be empty")
     @NotBlank(message = "currencycode should not be blank")
     private String currencycode;
+
     private boolean status;
+    @Column
+    @OneToMany(targetEntity = PaymentOrder.class,cascade = CascadeType.ALL)
     List<PaymentOrder> paymentOrderList;
 
     public UUID getCheckoutid() {
@@ -73,6 +71,7 @@ public class Order {
         this.status = status;
     }
 
+    @OneToMany(mappedBy = "order")
     public List<PaymentOrder> getPaymentOrderList() {
         return paymentOrderList;
     }

@@ -14,7 +14,12 @@ import java.util.UUID;
 public class PaymentOrder {
     @Id
     @GeneratedValue
-    private String id;
+    private int id;
+
+    @ManyToOne(cascade = CascadeType.ALL)
+    @JoinColumn(name="checkoutid",referencedColumnName = "checkoutid")
+    private Order order;
+
     @Column
     @NotNull(message = "sellername should not be null")
     @NotEmpty(message = "sellername should not be empty")
@@ -28,10 +33,13 @@ public class PaymentOrder {
     @NotEmpty(message = "sellername should not be empty")
     @NotBlank(message = "sellername should not be blank")
     private String amount;
+    @Column
     private String currencycode;
+    @Column
     private boolean ledgerUpdated;
+    @Column
     private boolean walletUpdated;
-    private UUID checkoutid;
+    //private UUID checkoutid;
 
     private boolean initamount;
 
@@ -90,12 +98,20 @@ public class PaymentOrder {
         this.walletUpdated = walletUpdated;
     }
 
-    public UUID getUUID() {
-        return this.checkoutid;
+//    public UUID getUUID() {
+//        return this.checkoutid;
+//    }
+//
+//    public void setUUID(UUID UUID) {
+//        if(this.checkoutid==UUID)
+//            this.checkoutid = UUID;
+//    }
+
+    public Order getOrder() {
+        return order;
     }
 
-    public void setUUID(UUID UUID) {
-        if(this.checkoutid==UUID)
-            this.checkoutid = UUID;
+    public void setOrder(Order order) {
+        this.order = order;
     }
 }

@@ -4,9 +4,11 @@ import com.vrp.system.paymentsystem.paymentservice.common.exceptions.BadPaymentO
 import com.vrp.system.paymentsystem.paymentservice.models.PaymentError;
 import com.vrp.system.paymentsystem.paymentservice.pools.CustomWrapper;
 import com.vrp.system.paymentsystem.paymentservice.pools.PaymentErrorPool;
+import jakarta.validation.UnexpectedTypeException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.context.request.WebRequest;
@@ -23,7 +25,7 @@ public class customadvice {
     private static DateTimeFormatter dateTimeFormatter=DateTimeFormatter.ofPattern("dd:MM:yyyy HH:mm:ssZ");
     @Autowired
     private PaymentErrorPool paymentErrorPool;
-    @ExceptionHandler({BadPaymentOrder.class})
+    @ExceptionHandler({BadPaymentOrder.class, UnexpectedTypeException.class, MethodArgumentNotValidException.class})
     public ResponseEntity<PaymentError> handlerBadPaymentOrder(RuntimeException ex , WebRequest webRequest){
                   CustomWrapper<PaymentError> cwp =paymentErrorPool.getShell();
                   PaymentError pe=cwp.getData();

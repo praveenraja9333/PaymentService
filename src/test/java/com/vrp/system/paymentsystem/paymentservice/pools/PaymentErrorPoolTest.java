@@ -10,7 +10,7 @@ import static org.junit.jupiter.api.Assertions.*;
 
 class PaymentErrorPoolTest {
 
-  /*  public static PaymentErrorPool paymentErrorPool;
+    public static PaymentErrorPool paymentErrorPool;
     @BeforeAll
     static void setUp(){
         paymentErrorPool=new PaymentErrorPool();
@@ -18,13 +18,13 @@ class PaymentErrorPoolTest {
 
     @Test
     void max_count(){
-        assertEquals(10000,PaymentErrorPool.getMax_count());
+        assertEquals(10000,paymentErrorPool.getMax_count());
     }
 
     @Test
     void getPaymentErrorShell(){
         //Object O=
-        assertTrue(paymentErrorPool.getPaymentErrorShell() instanceof PaymentErrorPool.PaymentErrorWrapper);
+        assertTrue(paymentErrorPool.getShell() instanceof CustomWrapper<PaymentError>);
     }
 
     @Test
@@ -32,8 +32,8 @@ class PaymentErrorPoolTest {
 
         Runnable r=()-> {
             int counter=0;
-            while (counter++ < 1000000000) {
-                paymentErrorPool.addPaymentError(new PaymentErrorPool.PaymentErrorWrapper(null));
+            while (counter++ < 100000) {
+                paymentErrorPool.addPaymentError(new CustomWrapper<>(new PaymentError()));
             }
         };
         Thread t1=new Thread(r);
@@ -47,6 +47,6 @@ class PaymentErrorPoolTest {
             throw new RuntimeException(e);
         }
 
-    }*/
+    }
 
 }
