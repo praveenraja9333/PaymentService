@@ -1,4 +1,4 @@
-package com.vrp.system.paymentsystem.paymentservice.pools;
+package com.vrp.system.paymentsystem.paymentservice.pools.helper;
 
 import com.vrp.system.paymentsystem.paymentservice.models.PaymentError;
 

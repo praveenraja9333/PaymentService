@@ -1,10 +1,9 @@
 package com.vrp.system.paymentsystem.paymentservice.pools;
 
 import com.vrp.system.paymentsystem.paymentservice.models.PaymentError;
+import com.vrp.system.paymentsystem.paymentservice.pools.helper.CustomWrapper;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
-
-import java.time.ZonedDateTime;
 
 import static org.junit.jupiter.api.Assertions.*;
 

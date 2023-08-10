@@ -17,6 +17,8 @@ public class RegistrationEvent {
     private String amount;
     private Status status;
 
+    private RegistrationEvent(){}
+
     public UUID getCheckoutid() {
         return checkoutid;
     }
@@ -60,7 +62,7 @@ public class RegistrationEvent {
         this.status = status;
     }
 
-   static class RegistrationEventBuilder extends Builder<RegistrationEvent>{
+   public static class RegistrationEventBuilder extends Builder<RegistrationEvent>{
        private static DateTimeFormatter dateTimeFormatter=DateTimeFormatter.ofPattern("dd-MM-yyyy hh:mm:ssZ");
        private static SimpleDateFormat format=new SimpleDateFormat("dd-MM-yyyy hh:mm:ssZ");
        private UUID checkoutid;
@@ -110,6 +112,10 @@ public class RegistrationEvent {
            re.setStatus(this.status);
            return re;
        }
+   }
+
+   public static RegistrationEventBuilder newBuilder(){
+        return new RegistrationEventBuilder();
    }
 
     @Override

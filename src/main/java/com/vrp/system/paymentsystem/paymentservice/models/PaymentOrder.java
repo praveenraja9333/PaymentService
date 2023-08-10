@@ -98,14 +98,6 @@ public class PaymentOrder {
         this.walletUpdated = walletUpdated;
     }
 
-//    public UUID getUUID() {
-//        return this.checkoutid;
-//    }
-//
-//    public void setUUID(UUID UUID) {
-//        if(this.checkoutid==UUID)
-//            this.checkoutid = UUID;
-//    }
 
     public Order getOrder() {
         return order;

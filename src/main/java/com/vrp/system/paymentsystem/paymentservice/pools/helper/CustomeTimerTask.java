@@ -1,11 +1,9 @@
-package com.vrp.system.paymentsystem.paymentservice.pools;
+package com.vrp.system.paymentsystem.paymentservice.pools.helper;
 
 import java.util.Iterator;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.TimerTask;
 import java.util.concurrent.TimeUnit;
-import java.util.concurrent.locks.ReentrantLock;
 
 public class CustomeTimerTask<T> extends TimerTask {
     AbstractErrorHelperPool abs;

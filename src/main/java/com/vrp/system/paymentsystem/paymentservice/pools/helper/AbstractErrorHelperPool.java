@@ -1,4 +1,4 @@
-package com.vrp.system.paymentsystem.paymentservice.pools;
+package com.vrp.system.paymentsystem.paymentservice.pools.helper;
 
 
 import java.util.*;
@@ -15,8 +15,8 @@ public abstract class AbstractErrorHelperPool<E> {
     Timer timer = new Timer();
 
     public int size = 0;
-    LinkedList<CustomWrapper<E>> total =new LinkedList<>();
-    LinkedList<CustomWrapper<E>> available = new LinkedList<>();
+    protected LinkedList<CustomWrapper<E>> total =new LinkedList<>();
+    protected LinkedList<CustomWrapper<E>> available = new LinkedList<>();
 
     protected volatile List<CustomWrapper<E>> tobeadded1 = Collections.synchronizedList(new LinkedList<>());
     protected volatile List<CustomWrapper<E>> tobeadded2 = Collections.synchronizedList(new LinkedList<>());

@@ -7,24 +7,51 @@ import com.vrp.system.paymentsystem.paymentservice.dao.OrderDao;
 import com.vrp.system.paymentsystem.paymentservice.dao.PaymentOrderDao;
 import com.vrp.system.paymentsystem.paymentservice.models.Order;
 import com.vrp.system.paymentsystem.paymentservice.models.PaymentOrder;
+import com.vrp.system.paymentsystem.paymentservice.models.RegistrationEvent;
+import com.vrp.system.paymentsystem.paymentservice.models.Status;
+import com.vrp.system.paymentsystem.paymentservice.reactiveflow.AbstractPublisherImpl;
+import com.vrp.system.paymentsystem.paymentservice.reactiveflow.AbstractSubscriberImpl;
+import com.vrp.system.paymentsystem.paymentservice.reactiveflow.Publisher;
+import com.vrp.system.paymentsystem.paymentservice.reactiveflow.Subscriber;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.propertyeditors.CurrencyEditor;
 import org.springframework.stereotype.Service;
 
-import java.util.List;
+import java.text.NumberFormat;
+import java.text.ParseException;
+import java.time.ZonedDateTime;
+import java.util.*;
 
 @Service
 public class PaymentApiService {
+    private NumberFormat numberFormat=NumberFormat.getNumberInstance();
     @Autowired
     private OrderDao orderDao;
     @Autowired
     private PaymentOrderDao paymentOrderDao;
+    private Publisher<RegistrationEvent> publisher=new AbstractPublisherImpl<RegistrationEvent>(){
+                     @Override
+                     public void publish(RegistrationEvent re){
+                              for(Subscriber<RegistrationEvent> subscriber:registrationSubscribers){
+                                   subscriber.onPublish(re);
+                                }
+                        }
+    };
+    private Set<Subscriber<RegistrationEvent>> registrationSubscribers=new HashSet<>();
     public void paymentOrderSave(Order order){
                     List<PaymentOrder> paymentOrderList=order.getPaymentOrderList();
                     PaymentOrder paymentorder=null;
                     Order order1=null;
-
+                    Currency currency =Currency.getInstance(order.getCurrencycode());
+                    numberFormat.setCurrency(currency);
+                    double amount=0.0;
                     for(PaymentOrder paymentOrder:paymentOrderList){
                         paymentOrder.setOrder(order);
+                        try {
+                            amount +=numberFormat.parse(paymentorder.getAmount()).doubleValue();
+                        } catch (ParseException e) {
+                            throw new RuntimeException(e);
+                        }
 
                     }
                     if((order1=orderDao.save(order))==null){
@@ -32,6 +59,13 @@ public class PaymentApiService {
                     }
 
 
+                    RegistrationEvent registrationEvent=RegistrationEvent.newBuilder().setCheckoutid(order.getCheckoutid()).setCurrencycode(order.getCurrencycode()).setAmount(numberFormat.format(amount))
+                            .setDatetime(ZonedDateTime.now()).setStatus(Status.PENDING).build();
+                    publisher.publish(registrationEvent);
     }
 
+    public boolean addSubsribers(Subscriber<RegistrationEvent> subscriber){
+              return  registrationSubscribers.add(subscriber);
+    }
+    
 }

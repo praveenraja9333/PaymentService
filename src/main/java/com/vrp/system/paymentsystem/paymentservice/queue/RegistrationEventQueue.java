@@ -1,18 +1,106 @@
 package com.vrp.system.paymentsystem.paymentservice.queue;
 
 import com.vrp.system.paymentsystem.paymentservice.models.RegistrationEvent;
+import com.vrp.system.paymentsystem.paymentservice.reactiveflow.Publisher;
+import com.vrp.system.paymentsystem.paymentservice.reactiveflow.Subscriber;
+import lombok.Synchronized;
+import org.springframework.stereotype.Component;
 
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
-import java.util.HashMap;
-import java.util.LinkedList;
-import java.util.Map;
-import java.util.PriorityQueue;
+import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
 
-public class RegistrationEventQueue {
+@Component
+public final class RegistrationEventQueue {
     private static DateTimeFormatter dateTimeFormatter=DateTimeFormatter.ofPattern("dd-MM-yyyy hh:mm:ssZ");
     private PriorityQueue<RegistrationEvent> queue=new PriorityQueue<>((re,re1)->
            Long.compare(ZonedDateTime.parse(re1.getDatatime()).toEpochSecond(),ZonedDateTime.parse(re.getDatatime()).toEpochSecond())
     );
-    private Map<RegistrationEvent,RegistrationEvent> map=new HashMap<>();
+    private final  Map<RegistrationEvent,RegistrationEvent> map=new ConcurrentHashMap<>();
+    private final  Map<RegistrationEvent,Integer> retriesCache=new ConcurrentHashMap<>();
+    private final Set<Subscriber<RegistrationEvent>> subscribers=new HashSet<>();
+    private final Publisher<RegistrationEvent> registrationEventPublisher=new Publisher<RegistrationEvent>() {
+        @Override
+        public void publish(RegistrationEvent registrationEvent) {
+                for(Subscriber<RegistrationEvent> subscriber: subscribers){
+                    subscriber.onPublish(registrationEvent);
+                }
+        }
+        @Override
+        public void delete(RegistrationEvent registrationEvent) {
+                for(Subscriber<RegistrationEvent> subscriber:subscribers){
+                    subscriber.onDelete(registrationEvent);
+                }
+        }
+
+        @Override
+        public void updated(RegistrationEvent registrationEvent) {
+               for(Subscriber<RegistrationEvent> subscriber:subscribers){
+                     subscriber.onUpdate(registrationEvent);
+               }
+        }
+
+        @Override
+        public void error(RegistrationEvent registrationEvent) {
+                for(Subscriber<RegistrationEvent> subscriber:subscribers){
+                    subscriber.onError(registrationEvent);
+                }
+        }
+    };
+
+    private Subscriber<RegistrationEvent> registrationEventSubscribers=new Subscriber<RegistrationEvent>() {
+        @Override
+        public void onPublish(RegistrationEvent registrationEvent) {
+            map.put(registrationEvent,registrationEvent);
+            queue.add(registrationEvent);
+            registrationEventPublisher.publish(registrationEvent);
+        }
+
+        @Override
+        public void onDelete(RegistrationEvent registrationEvent) {
+            map.remove(registrationEvent);
+            retriesCache.remove(registrationEvent);
+            registrationEventPublisher.delete(registrationEvent);
+        }
+
+        @Override
+        public void onUpdate(RegistrationEvent registrationEvent) {
+            map.put(registrationEvent,registrationEvent);
+            registrationEventPublisher.updated(registrationEvent);
+        }
+
+        @Override
+        public void onError(RegistrationEvent registrationEvent) {
+            retriesCache.merge(registrationEvent,1,Integer::sum);
+            registrationEventPublisher.error(registrationEvent);
+        }
+    };
+
+    public Subscriber<RegistrationEvent> getRegistrationEventSubscriber() {
+        return registrationEventSubscribers;
+    }
+
+
+    public boolean addSubcribers(Subscriber<RegistrationEvent> subscriber){
+             return this.subscribers.add(subscriber);
+    }
+
+    public int noOfretries(RegistrationEvent re){
+        return retriesCache.containsKey(re)?retriesCache.get(re):0;
+    }
+
+    public synchronized boolean add(RegistrationEvent registrationEvent){
+            return map.containsKey(registrationEvent)?false:queue.add(registrationEvent);
+    }
+    public synchronized RegistrationEvent  poll(){
+            return queue.poll();
+    }
+    public synchronized  boolean remove(RegistrationEvent registrationEvent){
+        return queue.remove(registrationEvent);
+    }
+
+    public synchronized int queueSize(){
+        return queue.size();
+    }
 }

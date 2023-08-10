@@ -2,7 +2,7 @@ package com.vrp.system.paymentsystem.paymentservice.common.exceptionshandlers;
 
 import com.vrp.system.paymentsystem.paymentservice.common.exceptions.BadPaymentOrder;
 import com.vrp.system.paymentsystem.paymentservice.models.PaymentError;
-import com.vrp.system.paymentsystem.paymentservice.pools.CustomWrapper;
+import com.vrp.system.paymentsystem.paymentservice.pools.helper.CustomWrapper;
 import com.vrp.system.paymentsystem.paymentservice.pools.PaymentErrorPool;
 import jakarta.validation.UnexpectedTypeException;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -13,9 +13,6 @@ import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.context.request.WebRequest;
 
-import java.time.Instant;
-import java.time.LocalDateTime;
-import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 
