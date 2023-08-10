@@ -1,13 +1,13 @@
 package com.vrp.system.paymentsystem.paymentservice.workers;
 
 
-import com.domain.travel.travelproject.dao.DaoStores;
-import com.domain.travel.travelproject.joins.EnquiryJoin;
-import com.domain.travel.travelproject.models.Query;
-import com.domain.travel.travelproject.monitor.Monitor;
-import com.domain.travel.travelproject.service.Dbservice;
+
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.vrp.system.paymentsystem.paymentservice.models.RegistrationEvent;
+import com.vrp.system.paymentsystem.paymentservice.queue.RegistrationEventQueue;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import java.io.IOException;
@@ -16,41 +16,33 @@ import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 
-import static com.domain.travel.travelproject.common.AsyncQueues.QueueNames.FAILED_QUERY_QUEUE;
-import static com.domain.travel.travelproject.common.AsyncQueues.QueueNames.QUERY_QUEUE;
-import static com.domain.travel.travelproject.monitor.MonitorTypes.ENRICHJOIN;
-
 
 public class ExecuteThreadImpl implements  Runnable {
 
+    private static Logger LOG= LogManager.getLogger(ExecuteThreadImpl.class);
 
     @Autowired
-   private DaoStores daoStores;
+   private RegistrationEventQueue registrationEventQueue;
 
-    @Autowired
-    private Monitor monitor;
-
-    @Autowired
-    private Dbservice dbservice;
 
     @Override
     public void run() {
 
         while(true) {
             if(WorkerMasterImpl.isExitThread()){
-                System.out.println(Thread.currentThread().getThreadGroup()+":==:"+Thread.currentThread().getName()+"  Thread Exit intended. Hence Exiting");
+                LOG.info(Thread.currentThread().getThreadGroup()+":==:"+Thread.currentThread().getName()+"  Thread Exit intended. Hence Exiting");
                 break;
             }
-            System.out.println(Thread.currentThread().getThreadGroup()+":==:"+Thread.currentThread().getName()+"  Tracing the queue");
-            Query query=(Query)daoStores.getQueue(QUERY_QUEUE).poll();
-            if(query==null) {
-                System.out.println(Thread.currentThread().getThreadGroup() + ":==:" + Thread.currentThread().getName() + "  No Queue initialized yet");
+            LOG.info(Thread.currentThread().getThreadGroup()+":==:"+Thread.currentThread().getName()+"  Tracing the queue");
+            RegistrationEvent registrationEvent=registrationEventQueue.poll();
+            if(registrationEvent==null) {
+                LOG.info(Thread.currentThread().getThreadGroup() + ":==:" + Thread.currentThread().getName() + "  No Queue initialized yet");
 
             }
             else {
-                System.out.println(Thread.currentThread().getThreadGroup()+":==:"+Thread.currentThread().getName()+"Queue initialized");
-                System.out.println(Thread.currentThread().getThreadGroup()+":==:"+Thread.currentThread().getName()+"Query Being processed is "+query.getQueryid()+"  "+query.getFirstname()+"  "+query.getLastname());
-                //pushing the query logic here
+                LOG.info(Thread.currentThread().getThreadGroup()+":==:"+Thread.currentThread().getName()+"Queue initialized");
+                LOG.info(Thread.currentThread().getThreadGroup()+":==:"+Thread.currentThread().getName()+"Query Being processed is "+query.getQueryid()+"  "+query.getFirstname()+"  "+query.getLastname());
+                
                 ObjectMapper objectMapper=new ObjectMapper();
                 String jsonstr="";
                 try {

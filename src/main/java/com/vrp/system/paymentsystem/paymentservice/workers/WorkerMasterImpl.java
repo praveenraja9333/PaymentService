@@ -78,9 +78,6 @@ public class WorkerMasterImpl<T extends Runnable>  implements WorkerMaster<T> {
 		setExitThread(false);
 		LOG.info(Thread.currentThread().getThreadGroup()+":==:"+Thread.currentThread().getName()+"Executor Service Shutdown successfully.reinitializing");
 		executorService = threadPool.populateThreadpool(noThreads);
-		IntStream.range(0, noThreads).forEach(i -> {
-			executorService.execute(applicationContext.getBean(clazz));
-		});
 
 	}
 }
