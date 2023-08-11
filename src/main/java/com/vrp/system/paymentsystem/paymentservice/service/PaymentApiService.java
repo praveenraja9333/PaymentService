@@ -1,7 +1,6 @@
 package com.vrp.system.paymentsystem.paymentservice.service;
 
-
-import com.vrp.system.paymentsystem.paymentservice.common.exceptions.BadPaymentOrder;
+;
 import com.vrp.system.paymentsystem.paymentservice.common.exceptions.PaymentEventRegistrationException;
 import com.vrp.system.paymentsystem.paymentservice.dao.OrderDao;
 import com.vrp.system.paymentsystem.paymentservice.dao.PaymentOrderDao;
@@ -10,20 +9,22 @@ import com.vrp.system.paymentsystem.paymentservice.models.PaymentOrder;
 import com.vrp.system.paymentsystem.paymentservice.models.RegistrationEvent;
 import com.vrp.system.paymentsystem.paymentservice.models.Status;
 import com.vrp.system.paymentsystem.paymentservice.reactiveflow.AbstractPublisherImpl;
-import com.vrp.system.paymentsystem.paymentservice.reactiveflow.AbstractSubscriberImpl;
 import com.vrp.system.paymentsystem.paymentservice.reactiveflow.Publisher;
 import com.vrp.system.paymentsystem.paymentservice.reactiveflow.Subscriber;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.propertyeditors.CurrencyEditor;
 import org.springframework.stereotype.Service;
 
 import java.text.NumberFormat;
 import java.text.ParseException;
 import java.time.ZonedDateTime;
 import java.util.*;
+import java.util.regex.Pattern;
 
 @Service
 public class PaymentApiService {
+    private static final Pattern REFEXURL= Pattern.compile("http[s]?://[.]*");
+    private static final String TESTHOST="http://localhost:8080/";
+    private static final String WEBHOOKURL=getWebhookurl();
     private NumberFormat numberFormat=NumberFormat.getNumberInstance();
     @Autowired
     private OrderDao orderDao;
@@ -66,6 +67,12 @@ public class PaymentApiService {
 
     public boolean addSubsribers(Subscriber<RegistrationEvent> subscriber){
               return  registrationSubscribers.add(subscriber);
+    }
+
+    public static String getWebhookurl(){
+        String rawUrl=System.getProperty("webHookUrl");
+        rawUrl=(rawUrl==null)?TESTHOST:REFEXURL.matcher(rawUrl).matches()?rawUrl:TESTHOST;
+        return rawUrl;
     }
     
 }

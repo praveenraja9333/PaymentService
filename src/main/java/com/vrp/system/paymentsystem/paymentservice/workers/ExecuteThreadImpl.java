@@ -41,13 +41,13 @@ public class ExecuteThreadImpl implements  Runnable {
             }
             else {
                 LOG.info(Thread.currentThread().getThreadGroup()+":==:"+Thread.currentThread().getName()+"Queue initialized");
-                LOG.info(Thread.currentThread().getThreadGroup()+":==:"+Thread.currentThread().getName()+"Query Being processed is "+query.getQueryid()+"  "+query.getFirstname()+"  "+query.getLastname());
+                LOG.info(Thread.currentThread().getThreadGroup()+":==:"+Thread.currentThread().getName()+"Event Being processed is "+registrationEvent.getCheckoutid());
                 
                 ObjectMapper objectMapper=new ObjectMapper();
                 String jsonstr="";
                 try {
-                    jsonstr=objectMapper.writeValueAsString(query);
-                    System.out.println(Thread.currentThread().getThreadGroup()+":==:"+Thread.currentThread().getName()+" Query json be produced"+ jsonstr);
+                    jsonstr=objectMapper.writeValueAsString(registrationEvent);
+                    LOG.info(Thread.currentThread().getThreadGroup()+":==:"+Thread.currentThread().getName()+" Query json be produced"+ jsonstr);
                 } catch (JsonProcessingException e) {
                     throw new RuntimeException(e);
                 }
@@ -64,41 +64,23 @@ public class ExecuteThreadImpl implements  Runnable {
 
                 }finally {
                     if (response!=null&&"0".equals(response.body())) {
-                        System.out.println(Thread.currentThread().getThreadGroup() + ":==:" + Thread.currentThread().getName() + " query id " + query.getQueryid() + " successfully pushed to Mailer");
+                        LOG.info(Thread.currentThread().getThreadGroup() + ":==:" + Thread.currentThread().getName() + " RegistrationEvent " + registrationEvent.getCheckoutid() + " successfully pushed to Mailer");
                     } else {
-                        if(daoStores.registerFailure(query.getQueryid())){
-                            daoStores.getQueue(QUERY_QUEUE).push(query);
+                        if(registrationEventQueue.getNoOfretries(registrationEvent)<3){
+                            registrationEventQueue.add(registrationEvent);
+                            registrationEventQueue.getRegistrationEventSubscriber().onError(registrationEvent);
                         }else{
-                            System.out.println(Thread.currentThread().getThreadGroup() + ":==:" + Thread.currentThread().getName() + " Retries limit exceeded query id " + query.getQueryid() + " Adding to the failed queue");
-                            daoStores.getQueue(FAILED_QUERY_QUEUE).add(query);
+                            System.out.println(Thread.currentThread().getThreadGroup() + ":==:" + Thread.currentThread().getName() + " Retries limit exceeded payment Event id " + registrationEvent.getCheckoutid() + " Adding to the failed queue");
+                            registrationEventQueue.getRegistrationEventSubscriber().onDelete(registrationEvent);
                         }
 
-                        System.out.println(Thread.currentThread().getThreadGroup() + ":==:" + Thread.currentThread().getName() + " query id " + query.getQueryid() + " Failed to be pushed to Mailer");
+                        System.out.println(Thread.currentThread().getThreadGroup() + ":==:" + Thread.currentThread().getName() + " checkoutId " + registrationEvent.getCheckoutid() + " Failed to be pushed to PSP");
                     }
 
                 }
 
-                //End Push Query Logic
-                //database insertion query
-                if(dbservice.serializeQuery(query)==0){
-                    //log failure
-                    System.out.println(Thread.currentThread().getThreadGroup()+":==:"+Thread.currentThread().getName()+" query id "+query.getQueryid()+"Query data serialization failure");
-                }
-                EnquiryJoin enquiryJoin=new EnquiryJoin();
-                enquiryJoin.setQuery(query);
-                enquiryJoin.setQueryId(query.getQueryid());
-                System.out.println(Thread.currentThread().getThreadGroup()+":==:"+Thread.currentThread().getName()+" Enrich join called"+enquiryJoin.getQueryId()+"enrich join");
-                monitor.getMonitorCache().get(ENRICHJOIN).put(query.getQueryid(),enquiryJoin);
-
-                // retrive the priced details
-
-                //
-
-
             }
-            if (query != null){
-                //logic hear
-            }
+
             try {
                 Thread.sleep(3000);
             } catch (InterruptedException e) {

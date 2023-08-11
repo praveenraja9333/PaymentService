@@ -1,5 +1,11 @@
 package com.vrp.system.paymentsystem.paymentservice.models;
 
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.Id;
+import jakarta.persistence.Table;
+import jakarta.transaction.Transactional;
+
 import java.text.SimpleDateFormat;
 import java.time.Instant;
 import java.time.LocalDate;
@@ -10,11 +16,20 @@ import java.util.Date;
 import java.util.SimpleTimeZone;
 import java.util.UUID;
 
+
+@Entity
+@Transactional
+@Table(name="Payment_Registration_Event")
 public class RegistrationEvent {
+    @Id
     private UUID checkoutid;
+    @Column
     private String currencycode;
+    @Column
     private String datetime;
+    @Column
     private String amount;
+    @Column
     private Status status;
 
     private RegistrationEvent(){}

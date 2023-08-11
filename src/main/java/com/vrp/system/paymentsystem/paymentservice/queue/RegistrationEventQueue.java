@@ -1,15 +1,19 @@
 package com.vrp.system.paymentsystem.paymentservice.queue;
 
+import com.vrp.system.paymentsystem.paymentservice.dao.RegistrationEventDao;
 import com.vrp.system.paymentsystem.paymentservice.models.RegistrationEvent;
 import com.vrp.system.paymentsystem.paymentservice.reactiveflow.Publisher;
 import com.vrp.system.paymentsystem.paymentservice.reactiveflow.Subscriber;
-import lombok.Synchronized;
+import jakarta.annotation.PostConstruct;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
 
 @Component
 public final class RegistrationEventQueue {
@@ -17,9 +21,21 @@ public final class RegistrationEventQueue {
     private PriorityQueue<RegistrationEvent> queue=new PriorityQueue<>((re,re1)->
            Long.compare(ZonedDateTime.parse(re1.getDatatime()).toEpochSecond(),ZonedDateTime.parse(re.getDatatime()).toEpochSecond())
     );
+    private final List<RegistrationEvent> deadLetterQueue=Collections.synchronizedList(new LinkedList<>());
     private final  Map<RegistrationEvent,RegistrationEvent> map=new ConcurrentHashMap<>();
     private final  Map<RegistrationEvent,Integer> retriesCache=new ConcurrentHashMap<>();
     private final Set<Subscriber<RegistrationEvent>> subscribers=new HashSet<>();
+    @Autowired
+    private  RegistrationEventDao registrationEventDao;
+    @PostConstruct
+    public void init(){
+        Executors.newScheduledThreadPool(1).scheduleAtFixedRate(()-> {
+            while (!deadLetterQueue.isEmpty()) {
+                deadLetterQueue.stream().forEach(registrationEventDao::save);
+            }
+        },1,10, TimeUnit.SECONDS);
+    }
+
     private final Publisher<RegistrationEvent> registrationEventPublisher=new Publisher<RegistrationEvent>() {
         @Override
         public void publish(RegistrationEvent registrationEvent) {
@@ -86,7 +102,7 @@ public final class RegistrationEventQueue {
              return this.subscribers.add(subscriber);
     }
 
-    public int noOfretries(RegistrationEvent re){
+    public int getNoOfretries(RegistrationEvent re){
         return retriesCache.containsKey(re)?retriesCache.get(re):0;
     }
 
@@ -102,5 +118,9 @@ public final class RegistrationEventQueue {
 
     public synchronized int queueSize(){
         return queue.size();
+    }
+
+    public boolean addDeadPayments(RegistrationEvent re){
+        return deadLetterQueue.add(re);
     }
 }
