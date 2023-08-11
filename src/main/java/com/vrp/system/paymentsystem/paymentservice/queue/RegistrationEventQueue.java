@@ -123,4 +123,8 @@ public final class RegistrationEventQueue {
     public boolean addDeadPayments(RegistrationEvent re){
         return deadLetterQueue.add(re);
     }
+
+    public Integer getDeadLetterQueueSize(){
+        return deadLetterQueue.size();
+    }
 }
