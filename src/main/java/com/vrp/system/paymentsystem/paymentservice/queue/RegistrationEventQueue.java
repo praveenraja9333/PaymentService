@@ -5,6 +5,8 @@ import com.vrp.system.paymentsystem.paymentservice.models.RegistrationEvent;
 import com.vrp.system.paymentsystem.paymentservice.reactiveflow.Publisher;
 import com.vrp.system.paymentsystem.paymentservice.reactiveflow.Subscriber;
 import jakarta.annotation.PostConstruct;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -17,11 +19,12 @@ import java.util.concurrent.TimeUnit;
 
 @Component
 public final class RegistrationEventQueue {
+    private static Logger LOG= LogManager.getLogger(RegistrationEventQueue.class);
     private static DateTimeFormatter dateTimeFormatter=DateTimeFormatter.ofPattern("dd-MM-yyyy hh:mm:ssZ");
     private PriorityQueue<RegistrationEvent> queue=new PriorityQueue<>((re,re1)->
            Long.compare(ZonedDateTime.parse(re1.getDatatime()).toEpochSecond(),ZonedDateTime.parse(re.getDatatime()).toEpochSecond())
     );
-    private final List<RegistrationEvent> deadLetterQueue=Collections.synchronizedList(new LinkedList<>());
+    private volatile LinkedList<RegistrationEvent> deadLetterQueue=new LinkedList<>();
     private final  Map<RegistrationEvent,RegistrationEvent> map=new ConcurrentHashMap<>();
     private final  Map<RegistrationEvent,Integer> retriesCache=new ConcurrentHashMap<>();
     private final Set<Subscriber<RegistrationEvent>> subscribers=new HashSet<>();
@@ -30,8 +33,12 @@ public final class RegistrationEventQueue {
     @PostConstruct
     public void init(){
         Executors.newScheduledThreadPool(1).scheduleAtFixedRate(()-> {
-            while (!deadLetterQueue.isEmpty()) {
-                deadLetterQueue.stream().forEach(registrationEventDao::save);
+            synchronized (this) {
+                LOG.info("Event started ++++++++++++++++++++++++ " + deadLetterQueue.size());
+                while (!deadLetterQueue.isEmpty()) {
+                    LOG.info("inside loop Event started ++++++++++++++++++++++++ " + deadLetterQueue.size());
+                    LOG.info(registrationEventDao.save(deadLetterQueue.poll()));
+                }
             }
         },1,10, TimeUnit.SECONDS);
     }
@@ -120,7 +127,7 @@ public final class RegistrationEventQueue {
         return queue.size();
     }
 
-    public boolean addDeadPayments(RegistrationEvent re){
+    public synchronized boolean addDeadPayments(RegistrationEvent re){
         return deadLetterQueue.add(re);
     }
 
