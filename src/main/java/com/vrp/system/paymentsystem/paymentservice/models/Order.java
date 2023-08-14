@@ -71,7 +71,6 @@ public class Order {
         this.status = status;
     }
 
-    @OneToMany(mappedBy = "order")
     public List<PaymentOrder> getPaymentOrderList() {
         return paymentOrderList;
     }

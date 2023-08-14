@@ -31,4 +31,14 @@ public class customadvice {
                   pe.setTimestamp(ZonedDateTime.now().format(dateTimeFormatter));
                   return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(pe);
     }
+
+    @ExceptionHandler({RuntimeException.class})
+    public ResponseEntity<PaymentError> commonRuntime(RuntimeException ex , WebRequest webRequest){
+        CustomWrapper<PaymentError> cwp =paymentErrorPool.getShell();
+        PaymentError pe=cwp.getData();
+        pe.setStatus(HttpStatus.BAD_REQUEST.toString());
+        pe.setReason(ex.getMessage());
+        pe.setTimestamp(ZonedDateTime.now().format(dateTimeFormatter));
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(pe);
+    }
 }

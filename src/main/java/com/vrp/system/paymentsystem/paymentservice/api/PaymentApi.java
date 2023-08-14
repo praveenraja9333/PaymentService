@@ -6,10 +6,7 @@ import com.vrp.system.paymentsystem.paymentservice.service.PaymentApiService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.validation.annotation.Validated;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 public class PaymentApi {
@@ -18,8 +15,23 @@ public class PaymentApi {
     private PaymentApiService paymentApiService;
 
     @PostMapping("/api/v1/payment")
-    public void postPayment(@Validated @RequestBody Order order){
+    public int postPayment(@Validated @RequestBody Order order){
             paymentApiService.paymentOrderSave(order);
+            return 0;
+    }
+
+    @GetMapping("/api/v1/payment")
+    public void getPayment(){
+        throw new RuntimeException("Get mapping is supported");
+    }
+    @DeleteMapping("/api/v1/payment")
+    public void deletePayment(){
+        throw new RuntimeException("delete mapping is supported");
+    }
+
+    @PutMapping("/api/v1/payment")
+    public void putPayment(){
+        throw new RuntimeException("put mapping is supported");
     }
     
 }

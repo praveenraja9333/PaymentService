@@ -41,7 +41,6 @@ public class PaymentApiService {
     private Set<Subscriber<RegistrationEvent>> registrationSubscribers=new HashSet<>();
     public void paymentOrderSave(Order order){
                     List<PaymentOrder> paymentOrderList=order.getPaymentOrderList();
-                    PaymentOrder paymentorder=null;
                     Order order1=null;
                     Currency currency =Currency.getInstance(order.getCurrencycode());
                     numberFormat.setCurrency(currency);
@@ -49,7 +48,7 @@ public class PaymentApiService {
                     for(PaymentOrder paymentOrder:paymentOrderList){
                         paymentOrder.setOrder(order);
                         try {
-                            amount +=numberFormat.parse(paymentorder.getAmount()).doubleValue();
+                            amount +=numberFormat.parse(paymentOrder.getAmount()).doubleValue();
                         } catch (ParseException e) {
                             throw new RuntimeException(e);
                         }
