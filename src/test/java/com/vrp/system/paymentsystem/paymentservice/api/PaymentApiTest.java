@@ -1,15 +1,13 @@
 package com.vrp.system.paymentsystem.paymentservice.api;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
+
 import com.vrp.system.paymentsystem.paymentservice.PaymentServiceApplication;
-import com.vrp.system.paymentsystem.paymentservice.models.PaymentError;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.test.web.reactive.server.WebTestClientBuilderCustomizer;
+import org.springframework.boot.test.context.SpringBootTest.WebEnvironment;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
-import org.springframework.test.web.reactive.server.WebTestClient;
 
 import java.io.IOException;
 import java.net.URI;
@@ -19,7 +17,7 @@ import java.net.http.HttpResponse;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-@SpringBootTest(classes = PaymentServiceApplication.class,webEnvironment = SpringBootTest.WebEnvironment.DEFINED_PORT)
+@SpringBootTest(classes = PaymentServiceApplication.class,webEnvironment = WebEnvironment.DEFINED_PORT)
 class PaymentApiTest {
     static final String PROTOCOL="http://";
     static final String HOSTNAME="localhost:8080";
