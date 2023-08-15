@@ -84,6 +84,7 @@ public final class RegistrationEventQueue {
         public void onDelete(RegistrationEvent registrationEvent) {
             map.remove(registrationEvent);
             retriesCache.remove(registrationEvent);
+            addDeadPayments(registrationEvent);
             registrationEventPublisher.delete(registrationEvent);
         }
 
@@ -114,7 +115,7 @@ public final class RegistrationEventQueue {
     }
 
     public synchronized boolean add(RegistrationEvent registrationEvent){
-            return map.containsKey(registrationEvent)?false:queue.add(registrationEvent);
+            return queue.add(registrationEvent);
     }
     public synchronized RegistrationEvent  poll(){
             return queue.poll();

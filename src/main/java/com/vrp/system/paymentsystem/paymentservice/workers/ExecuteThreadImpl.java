@@ -51,6 +51,7 @@ public class ExecuteThreadImpl implements  Runnable {
                 } catch (JsonProcessingException e) {
                     throw new RuntimeException(e);
                 }
+                //Below is the dummy post invocation will  fast
                 HttpRequest request = HttpRequest.newBuilder()
                         .uri(URI.create("http://localhost:9091/v1/api/postcity"))
                         .header("Content-type", "application/json")
